@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="format-detection" content="telephone=no">
+
+  <title>網頁title</title>
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" sizes="32x32" />
+  <link rel="image_src" href="images/share.jpg" />
+  <meta property="og:title" content="" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="images/share.jpg" />
+  <meta property="og:description" content="" />
+
+  <link href="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.css" rel="stylesheet">
+  <link href="css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/all.css">
+
+</head>
+
+<body>
+
+  <div class="smooth-scroll">
+    <section class="description panel blue">
+      <div class="photo">
+        <img src="https://picsum.photos/300/200?random=1">
+      </div>
+      <div class="photo">
+        <img src="https://picsum.photos/300/200?random=1">
+      </div>
+      <div class="photo">
+        <img src="https://picsum.photos/300/200?random=1">
+      </div>
+      <div class="photo">
+        <img src="https://picsum.photos/300/200?random=1">
+      </div>
+      <div class="photo">
+        <img src="https://picsum.photos/300/200?random=1">
+      </div>
+      <div>
+        <h1>Developer</h1>
+        <p>Demonstrates how ScrollTrigger can be used with a smooth scrolling library like Locomotive Scroll, including
+          scrubbing and pinning.</p>
+        <div class="scroll-down">Scroll down<div class="arrow"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="panel red">
+      <p><span class="line line-1"></span>This line's animation will begin when it enters the viewport and finish when
+        its top edge hits the top of the viewport, staying perfectly in sync with the scrollbar because it has
+        <code>scrub:&nbsp;true</code></p>
+    </section>
+
+
+    <section class="panel orange">
+      <p><span class="line line-2"></span>This orange panel gets pinned when its top edge hits the top of the viewport,
+        then the line's animation is linked with the scroll position until it has traveled 100% of the viewport's height
+        (<code>end: "+=100%"</code>), then the orange panel is unpinned and normal scrolling resumes. Padding is added
+        automatically to push the rest of the content down so that it catches up with the scroll when it unpins. You can
+        set <code>pinSpacing: false</code> to prevent that if you prefer.</p>
+    </section>
+
+
+    <section class="panel purple">
+      <p><span class="line line-3"></span>This panel gets pinned in a similar way, and has a more involved animation
+        that's wrapped in a timeline, fading the background color and animating the transforms of the paragraph in
+        addition to the line, all synced with the scroll position perfectly.</p>
+    </section>
+
+
+    <section class="panel gray">
+      DONE!
+    </section>
+
+
+  </div>
+
+  <script src="lib/jquery-3.5.1.min.js"></script>
+  <!-- <script src="lib/vue/vue.min.js"></script> -->
+  <!-- <script src="lib/vue/axios.min.js"></script> -->
+  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@3.5.4/dist/locomotive-scroll.min.js"></script> -->
+  <!-- <script src="lib/swiper.min.js"></script> -->
+  <!-- <script src="lib/cookie.js"></script> -->
+  <!-- <script src="./lib/locomotive-scroll.min.js"></script> -->
+  <!-- <script src="lib/gsap.min.js"></script> -->
+  <script src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+
+  <!-- 
+  <script src="js/ga.js"></script>
+  <script src="js/main.js"></script> -->
+
+  <script>
+    $(document).ready(function () {
+
+      gsap.registerPlugin(ScrollTrigger);
+
+
+      // --- SETUP START ---
+      // Using Locomotive Scroll from Locomotive https://github.com/locomotivemtl/locomotive-scroll
+      const locoScroll = new LocomotiveScroll({
+        el: document.querySelector(".smooth-scroll"),
+        smooth: true,
+        //smoothMobile: true
+        smartphone: {
+          smooth: true
+        },
+        tablet: {
+          smooth: true
+        },
+      });
+      // each time Locomotive Scroll updates, tell ScrollTrigger to update too (sync positioning)
+      locoScroll.on("scroll", ScrollTrigger.update);
+
+      // tell ScrollTrigger to use these proxy methods for the ".smooth-scroll" element since Locomotive Scroll is hijacking things
+      ScrollTrigger.scrollerProxy(".smooth-scroll", {
+        scrollTop(value) {
+          return arguments.length ? locoScroll.scrollTo(value, {
+            duration: 0,
+            disableLerp: true
+          }) : locoScroll.scroll.instance.scroll.y;
+        }, // we don't have to define a scrollLeft because we're only scrolling vertically.
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight
+          };
+        },
+        // LocomotiveScroll handles things completely differently on mobile devices - it doesn't even transform the container at all! So to get the correct behavior and avoid jitters, we should pin things with position: fixed on mobile. We sense it by checking to see if there's a transform applied to the container (the LocomotiveScroll-controlled element).
+        pinType: document.querySelector(".smooth-scroll").style.transform ? "transform" : "fixed"
+      });
+
+      // each time the window updates, we should refresh ScrollTrigger and then update LocomotiveScroll. 
+      ScrollTrigger.addEventListener("refresh", () => locoScroll.update());
+      ScrollTrigger.defaults({
+        scroller: ".smooth-scroll"
+      });
+      // --- SETUP END ---
+
+
+
+      // --- RED PANEL ---
+      gsap.from(".line-1", {
+        scrollTrigger: {
+          trigger: ".line-1",
+          scrub: true,
+          start: "top bottom",
+          end: "top top",
+          onUpdate() {
+            console.log("Update")
+          },
+          markers: true 
+        },
+        scaleX: 0,
+        transformOrigin: "left center",
+        ease: "none",
+      });
+
+
+      // --- ORANGE PANEL ---
+      gsap.from(".line-2", {
+        scrollTrigger: {
+          trigger: ".orange",
+          scrub: true,
+          pin: true,
+          start: "top top",
+          end: "+=100%",
+          onUpdate() {
+            console.log("Update")
+          },
+          markers: true 
+        },
+        scaleX: 0,
+        transformOrigin: "left center",
+        ease: "none",
+      });
+
+
+      // --- PURPLE/GREEN PANEL ---
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".purple",
+          scrub: true,
+          pin: true,
+          start: "top top",
+          end: "+=100%",
+          onUpdate() {
+            console.log("Update")
+          },
+          markers: true 
+        }
+      });
+
+      tl.from(".purple p", {
+          scale: 0.3,
+          rotation: 45,
+          autoAlpha: 0,
+          ease: "power2"
+        })
+        .from(".line-3", {
+          scaleX: 0,
+          transformOrigin: "left center",
+          ease: "none"
+        }, 0)
+        .to(".purple", {
+          backgroundColor: "#28a92b"
+        }, 0);
+
+
+
+
+
+      // after everything is set up, refresh() ScrollTrigger and update LocomotiveScroll because padding may have been added for pinning, etc.
+      ScrollTrigger.refresh();
+
+
+
+    });
+  </script>
+
+
+</body>
+
+</html>
